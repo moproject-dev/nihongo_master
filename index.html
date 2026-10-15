@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
     <!-- SheetJS (XLSX) CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Supabase JS client (read-only integration for stage 1) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
         tailwind.config = {
@@ -622,6 +624,14 @@
                             <i class="fa-solid fa-rotate-left mr-1"></i> Reset Seluruh Data LocalStorage
                         </button>
                     </div>
+
+                    <div class="border border-blue-200 p-4 rounded-xl bg-blue-50/50 space-y-2">
+                        <h4 class="font-bold text-sm text-blue-800">Backup Data Lokal</h4>
+                        <p class="text-xs text-blue-700">Mengunduh kategori, Kotoba, dan Kanji dari LocalStorage tanpa menyertakan PIN atau konfigurasi rahasia.</p>
+                        <button type="button" onclick="downloadLocalJsonBackup()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm">
+                            <i class="fa-solid fa-download mr-1"></i> Download Backup JSON
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -695,12 +705,19 @@
         /* ========================================================================= */
         /* INITIALIZATION & STORAGE                                                  */
         /* ========================================================================= */
-        window.addEventListener('DOMContentLoaded', () => {
-            loadDatabase();
+        const SUPABASE_CONFIG = {
+            // Isi dengan Project URL Supabase Anda.
+            url: 'https://hewylzmejjslpwsspisd.supabase.co',
+            // Gunakan publishable/anon key saja. Jangan masukkan service_role/secret key.
+            publishableKey: 'sb_publishable_AXl1sWx-e_cEn3ZRZ8lQag_9A_RA7hc'
+        };
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadDatabase();
             initUI();
         });
 
-        function loadDatabase() {
+        function getLocalDatabase() {
             const savedCat = localStorage.getItem('nihongo_categories');
             const savedKotoba = localStorage.getItem('nihongo_kotoba');
             const savedKanji = localStorage.getItem('nihongo_kanji');
@@ -714,11 +731,156 @@
             saveDatabase();
         }
 
+        function normalizeText(value) {
+            return value === null || value === undefined ? '' : String(value);
+        }
+
+        function normalizeSupabaseKotoba(row) {
+            return {
+                id: normalizeText(row.id),
+                kana: normalizeText(row.kana),
+                romaji: normalizeText(row.romaji),
+                arti_id: normalizeText(row.arti_id),
+                arti_en: normalizeText(row.arti_en),
+                level: normalizeText(row.level).toUpperCase(),
+                kategori: normalizeText(row.kategori),
+                bab: normalizeText(row.bab)
+            };
+        }
+
+        function normalizeSupabaseKanji(row) {
+            return {
+                id: normalizeText(row.id),
+                kanji: normalizeText(row.kanji),
+                kana: normalizeText(row.kana),
+                romaji: normalizeText(row.romaji),
+                arti_id: normalizeText(row.arti_id),
+                arti_en: normalizeText(row.arti_en),
+                level: normalizeText(row.level).toUpperCase()
+            };
+        }
+
+        function isSupabaseReadConfigured() {
+            return Boolean(
+                window.supabase &&
+                SUPABASE_CONFIG.url &&
+                SUPABASE_CONFIG.publishableKey &&
+                !SUPABASE_CONFIG.url.includes('PASTE_') &&
+                !SUPABASE_CONFIG.publishableKey.includes('PASTE_')
+            );
+        }
+
+        async function loadDatabaseFromSupabase() {
+            if (!isSupabaseReadConfigured()) {
+                console.info('[Supabase] Read-only belum dikonfigurasi; menggunakan data lokal.');
+                return false;
+            }
+
+            console.info('[Supabase] Memeriksa tabel kotoba dan kanji_kotoba dari project URL:', SUPABASE_CONFIG.url);
+
+            const client = window.supabase.createClient(
+                SUPABASE_CONFIG.url,
+                SUPABASE_CONFIG.publishableKey
+            );
+
+            const [kotobaResult, kanjiResult] = await Promise.all([
+                client
+                    .from('kotoba')
+                    .select('id,kana,romaji,arti_id,arti_en,level,kategori,bab,created_at'),
+                client
+                    .from('kanji_kotoba')
+                    .select('id,kanji,kana,romaji,arti_id,arti_en,level,created_at')
+            ]);
+
+            const describeResult = (tableName, result) => ({
+                table: tableName,
+                rowCount: Array.isArray(result.data) ? result.data.length : null,
+                error: result.error ? {
+                    message: result.error.message,
+                    code: result.error.code || null,
+                    details: result.error.details || null,
+                    hint: result.error.hint || null
+                } : null
+            });
+            console.info('[Supabase] Hasil query:', JSON.stringify({
+                kotoba: describeResult('kotoba', kotobaResult),
+                kanji_kotoba: describeResult('kanji_kotoba', kanjiResult)
+            }));
+
+            if (kotobaResult.error) throw new Error('kotoba: ' + kotobaResult.error.message);
+            if (kanjiResult.error) throw new Error('kanji_kotoba: ' + kanjiResult.error.message);
+
+            const remoteKotoba = (kotobaResult.data || []).map(normalizeSupabaseKotoba);
+            const remoteKanji = (kanjiResult.data || []).map(normalizeSupabaseKanji);
+
+            if (!remoteKotoba.length && !remoteKanji.length) {
+                console.warn('[Supabase] Query berhasil, tetapi kedua tabel kosong; data lokal/default dipertahankan.');
+                return false;
+            }
+
+            if (!remoteKotoba.length || !remoteKanji.length) {
+                console.warn('[Supabase] Query berhasil, tetapi salah satu tabel kosong:', {
+                    kotobaRows: remoteKotoba.length,
+                    kanjiKotobaRows: remoteKanji.length
+                });
+                return false;
+            }
+
+            dbKotoba = remoteKotoba;
+            dbKanji = remoteKanji;
+
+            const remoteCategories = remoteKotoba
+                .map(item => item.kategori.trim())
+                .filter(Boolean);
+            dbCategories = [...new Set([...dbCategories, ...remoteCategories])];
+
+            console.info('[Supabase] Data terbaca: ' + dbKotoba.length + ' kotoba, ' + dbKanji.length + ' kanji_kotoba.');
+            return true;
+        }
+
+        async function loadDatabase() {
+            getLocalDatabase();
+
+            try {
+                await loadDatabaseFromSupabase();
+            } catch (error) {
+                console.warn('[Supabase] Pembacaan gagal; menggunakan data lokal/default.', error);
+            }
+        }
+
         function saveDatabase() {
             localStorage.setItem('nihongo_categories', JSON.stringify(dbCategories));
             localStorage.setItem('nihongo_kotoba', JSON.stringify(dbKotoba));
             localStorage.setItem('nihongo_kanji', JSON.stringify(dbKanji));
             localStorage.setItem('nihongo_admin_pin', adminPin);
+        }
+
+        function downloadLocalJsonBackup() {
+            try {
+                const backup = {
+                    format: 'nihongo-master-local-backup',
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    categories: JSON.parse(localStorage.getItem('nihongo_categories') || '[]'),
+                    kotoba: JSON.parse(localStorage.getItem('nihongo_kotoba') || '[]'),
+                    kanji: JSON.parse(localStorage.getItem('nihongo_kanji') || '[]')
+                };
+                const json = JSON.stringify(backup, null, 2);
+                const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const date = new Date().toISOString().slice(0, 10);
+                link.href = url;
+                link.download = 'nihongo-master-local-backup-' + date + '.json';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+                alert('Backup JSON berhasil didownload.');
+            } catch (error) {
+                console.error('[Backup] Gagal membuat backup JSON:', error);
+                alert('Backup gagal dibuat. Periksa data LocalStorage di browser.');
+            }
         }
 
 
