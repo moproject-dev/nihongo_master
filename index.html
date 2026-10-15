@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nihongo Master - Platform Belajar JLPT (N5 - N1)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- SheetJS (XLSX) CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            50: '#fff5f7',
+                            100: '#ffe3ec',
+                            500: '#ff4d8d',
+                            600: '#e6005c',
+                        },
+                        crimson: {
+                            600: '#bc002d',
+                            700: '#9e0024',
+                        },
+                        indigoNavy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        jp: ['"Noto Sans JP"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-jp {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        
+        /* 3D Card Flip Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Gradient background accents */
+        .bg-japan-pattern {
+            background-color: #ffffff;
+            background-image: radial-gradient(#bc002d 0.5px, transparent 0.5px), radial-gradient(#bc002d 0.5px, #ffffff 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            background-opacity: 0.03;
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-crimson-600 flex items-center justify-center text-white font-jp text-xl font-black shadow-md shadow-crimson-600/30">
+                        日
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight text-slate-900 tracking-tight flex items-center gap-2">
+                            Nihongo Master <span class="text-xs px-2 py-0.5 rounded-full bg-crimson-600/10 text-crimson-600 font-semibold">JLPT</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 hidden sm:block">Platform Belajar Kosakata & Kanji Jepang Interaktif</p>
+                    </div>
+                </div>
+
+                <!-- Level Selector (N5 - N1) -->
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 overflow-x-auto max-w-full">
+                    <button onclick="setLevel('N5')" id="btn-level-N5" class="level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap">N5</button>
+                    <button onclick="setLevel('N4')" id="btn-level-N4" class="level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap">N4</button>
+                    <button onclick="setLevel('N3')" id="btn-level-N3" class="level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap">N3</button>
+                    <button onclick="setLevel('N2')" id="btn-level-N2" class="level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap">N2</button>
+                    <button onclick="setLevel('N1')" id="btn-level-N1" class="level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap">N1</button>
+                </div>
+
+                <!-- Action Controls (Global Settings & Admin) -->
+                <div class="flex items-center space-x-2">
+                    <!-- Global Voice Speed -->
+                    <div class="hidden md:flex items-center bg-slate-100 px-2 py-1 rounded-lg border border-slate-200 text-xs">
+                        <i class="fa-solid fa-gauge-high text-slate-400 mr-1.5"></i>
+                        <select id="global-speed" class="bg-transparent font-medium text-slate-700 outline-none cursor-pointer">
+                            <option value="0.5">0.5x</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1.0" selected>1.0x Normal</option>
+                        </select>
+                    </div>
+
+                    <!-- Mode Admin Button -->
+                    <button onclick="openAdminAuthModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-all">
+                        <i class="fa-solid fa-lock text-sakura-500"></i>
+                        <span class="hidden sm:inline">Mode Admin</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12">
+
+        <!-- GLOBAL NOTICE BANNER (WHEN LEVEL N3-N1 DATA IS EMPTY) -->
+        <div id="empty-level-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 flex items-start gap-3 shadow-sm">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xl mt-0.5"></i>
+            <div>
+                <h4 class="font-bold text-sm" id="empty-banner-title">Materi Masih Kosong</h4>
+                <p class="text-xs text-amber-700 mt-0.5" id="empty-banner-desc">Level ini disiapkan untuk pengembangan Anda. Anda dapat menambahkan data Kotoba atau Kanji melalui Mode Admin dengan Upload Excel/CSV atau Input Manual.</p>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- BAGIAN ATAS: SEKSI KOTOBA (VOCABULARY)                                   -->
+        <!-- ========================================================================= -->
+        <section id="section-kotoba" class="space-y-4">
+            
+            <!-- Section Header & Controls -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-crimson-600 inline-block"></span>
+                            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Daftar Kotoba <span class="text-sm font-normal text-slate-500">(Kosakata)</span></h2>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Daftar kosakata bahasa Jepang lengkap dengan Kana, Romaji, dan Arti.</p>
+                    </div>
+
+                    <!-- View Mode Tabs for Kotoba -->
+                    <div class="flex items-center bg-slate-100 p-1 rounded-xl self-start md:self-auto border border-slate-200">
+                        <button onclick="setKotobaView('grid')" id="btn-kotoba-grid" class="kotoba-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-border-all"></i> Grid
+                        </button>
+                        <button onclick="setKotobaView('table')" id="btn-kotoba-table" class="kotoba-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-list"></i> Tabel
+                        </button>
+                        <button onclick="setKotobaView('flashcard')" id="btn-kotoba-flashcard" class="kotoba-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-clone"></i> Flashcard
+                        </button>
+                        <button onclick="setKotobaView('quiz')" id="btn-kotoba-quiz" class="kotoba-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-circle-question"></i> Kuis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters & Search Toolbar -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-1">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-kotoba" oninput="renderKotoba()" placeholder="Cari Kana, Romaji, Arti..." 
+                               class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-crimson-600/30 focus:border-crimson-600 transition">
+                    </div>
+
+                    <!-- Filter Kategori -->
+                    <div>
+                        <select id="filter-kotoba-kategori" onchange="renderKotoba()" class="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-crimson-600/30 focus:border-crimson-600 transition">
+                            <option value="ALL">Semua Kategori</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select id="filter-kotoba-bab" onchange="renderKotoba()" class="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-crimson-600/30 focus:border-crimson-600 transition">
+                            <option value="ALL">Semua Bab</option>
+                        </select>
+                    </div>
+
+                    <!-- Options Toggle -->
+                    <div class="flex items-center space-x-3 text-xs">
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kotoba-romaji" checked onchange="renderKotoba()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-crimson-600 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">Romaji</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kotoba-en" checked onchange="renderKotoba()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-crimson-600 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">Arti English</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kotoba-indo" checked onchange="renderKotoba()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-crimson-600 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">Arti Indonesia</span>
+                        </label>
+                    </div>
+
+                    <!-- Quick Tools -->
+                    <div class="flex items-center justify-end space-x-2">
+                        <button onclick="shuffleKotoba()" title="Acak Urutan Data" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-shuffle"></i> Acak
+                        </button>
+                        <button onclick="resetKotobaFilters()" title="Reset Filter" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KOTOBA CONTAINER VIEWS -->
+            <div id="kotoba-view-container" class="min-h-[250px]">
+                <!-- Dynamic Content (Grid, Table, Flashcard, or Quiz) -->
+            </div>
+
+        </section>
+
+
+        <!-- HR DIVIDER WITH JAPANESE STYLE -->
+        <div class="relative py-4">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                <div class="w-full border-t border-slate-200"></div>
+            </div>
+            <div class="relative flex justify-center">
+                <span class="bg-slate-50 px-4 text-xs font-bold text-slate-400 uppercase tracking-widest font-jp">漢字 • KANJI KOTOBA</span>
+            </div>
+        </div>
+
+
+        <!-- ========================================================================= -->
+        <!-- BAGIAN BAWAH: SEKSI KANJI KOTOBA                                         -->
+        <!-- ========================================================================= -->
+        <section id="section-kanji" class="space-y-4">
+            
+            <!-- Section Header & Controls -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-indigoNavy-800 inline-block"></span>
+                            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Daftar Kanji Kotoba <span class="text-sm font-normal text-slate-500">(Kosakata Berkanji)</span></h2>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Kosakata yang ditulis menggunakan karakter Kanji beserta cara baca Kana dan Artinya.</p>
+                    </div>
+
+                    <!-- View Mode Tabs for Kanji -->
+                    <div class="flex items-center bg-slate-100 p-1 rounded-xl self-start md:self-auto border border-slate-200">
+                        <button onclick="setKanjiView('grid')" id="btn-kanji-grid" class="kanji-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-border-all"></i> Grid
+                        </button>
+                        <button onclick="setKanjiView('table')" id="btn-kanji-table" class="kanji-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-list"></i> Tabel
+                        </button>
+                        <button onclick="setKanjiView('flashcard')" id="btn-kanji-flashcard" class="kanji-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-clone"></i> Flashcard
+                        </button>
+                        <button onclick="setKanjiView('quiz')" id="btn-kanji-quiz" class="kanji-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-circle-question"></i> Kuis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters & Search Toolbar -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-kanji" oninput="renderKanji()" placeholder="Cari Kanji, Kana, Arti..." 
+                               class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigoNavy-800/30 focus:border-indigoNavy-800 transition">
+                    </div>
+
+                    <!-- Options Toggle -->
+                    <div class="flex items-center space-x-3 text-xs">
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kanji-romaji" checked onchange="renderKanji()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigoNavy-800 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">Romaji</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kanji-en" checked onchange="renderKanji()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigoNavy-800 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">English</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kanji-kana" checked onchange="renderKanji()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigoNavy-800 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">Kana</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="toggle-kanji-indo" checked onchange="renderKanji()" class="sr-only peer">
+                            <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigoNavy-800 relative"></div>
+                            <span class="ml-2 font-medium text-slate-600">
+                                Indonesia</span>
+                        </label>
+                    </div>
+
+                    <!-- Quick Tools -->
+                    <div class="flex items-center justify-end space-x-2">
+                        <button onclick="shuffleKanji()" title="Acak Urutan Data" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-shuffle"></i> Acak
+                        </button>
+                        <button onclick="resetKanjiFilters()" title="Reset Filter" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KANJI CONTAINER VIEWS -->
+            <div id="kanji-view-container" class="min-h-[250px]">
+                <!-- Dynamic Content (Grid, Table, Flashcard, or Quiz) -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
+            <p class="font-semibold text-slate-700">Nihongo Master JLPT Learning Platform</p>
+            <p>Dirancang untuk mempermudah belajar Kosakata & Kanji Jepang (JLPT N5 - N1).</p>
+        </div>
+    </footer>
+
+
+    <!-- ========================================================================= -->
+    <!-- MODAL SECTION: ADMIN AUTH & ADMIN DASHBOARD                               -->
+    <!-- ========================================================================= -->
+
+    <!-- 1. ADMIN AUTHENTICATION MODAL -->
+    <div id="admin-auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative">
+            <button onclick="closeAdminAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-3">
+                <div class="w-12 h-12 bg-crimson-600/10 text-crimson-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Akses Mode Admin</h3>
+                <p class="text-xs text-slate-500">Masukkan PIN keamanan untuk mengelola data Kotoba, Kanji, dan Kategori.</p>
+                
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4 pt-2">
+                    <input type="password" id="admin-pin-input" placeholder="Masukkan PIN (Default: 1234)" 
+                           class="w-full text-center tracking-widest text-lg py-2.5 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-crimson-600 focus:bg-white transition" required>
+                    <button type="submit" class="w-full py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                        Masuk Admin Panel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN ADMIN DASHBOARD MODAL -->
+    <div id="admin-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+            
+            <!-- Admin Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-sliders text-sakura-500 text-lg"></i>
+                    <div>
+                        <h3 class="font-bold text-sm">Dashboard Mode Admin</h3>
+                        <p class="text-[11px] text-slate-400">Kelola Data Kotoba, Kanji, dan Kategori System</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Admin Navigation Tabs -->
+            <div class="flex bg-slate-100 border-b border-slate-200 px-6 gap-2 pt-3 overflow-x-auto">
+                <button onclick="setAdminTab('kotoba')" id="admin-tab-btn-kotoba" class="admin-tab-btn pb-2 px-3 text-xs font-bold border-b-2 transition whitespace-nowrap">
+                    <i class="fa-solid fa-plus mr-1"></i> Input / Kelola Kotoba
+                </button>
+                <button onclick="setAdminTab('kanji')" id="admin-tab-btn-kanji" class="admin-tab-btn pb-2 px-3 text-xs font-bold border-b-2 transition whitespace-nowrap">
+                    <i class="fa-solid fa-plus mr-1"></i> Input / Kelola Kanji
+                </button>
+                <button onclick="setAdminTab('kategori')" id="admin-tab-btn-kategori" class="admin-tab-btn pb-2 px-3 text-xs font-bold border-b-2 transition whitespace-nowrap">
+                    <i class="fa-solid fa-tags mr-1"></i> Kelola Kategori
+                </button>
+                <button onclick="setAdminTab('settings')" id="admin-tab-btn-settings" class="admin-tab-btn pb-2 px-3 text-xs font-bold border-b-2 transition whitespace-nowrap">
+                    <i class="fa-solid fa-gear mr-1"></i> Pengaturan PIN / Data
+                </button>
+            </div>
+
+            <!-- Admin Tab Contents Area -->
+            <div class="p-6 overflow-y-auto flex-grow space-y-6">
+
+                <!-- TAB 2: INPUT / KELOLA KOTOBA MANUAL -->
+                <div id="admin-tab-kotoba" class="admin-tab-content space-y-6 hidden">
+                    <form onsubmit="saveKotobaManual(event)" class="border border-slate-200 rounded-2xl p-5 bg-slate-50 space-y-4">
+                        <h4 class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2">Tambah / Edit Data Kotoba Manual</h4>
+                        <input type="hidden" id="form-kotoba-id">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Kana (Hiragana/Katakana) *</label>
+                                <input type="text" id="form-kotoba-kana" required placeholder="Contoh: たべる" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Romaji *</label>
+                                <input type="text" id="form-kotoba-romaji" required placeholder="Contoh: taberu" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Level JLPT *</label>
+                                <select id="form-kotoba-level" required class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                                    <option value="N5">N5</option>
+                                    <option value="N4">N4</option>
+                                    <option value="N3">N3</option>
+                                    <option value="N2">N2</option>
+                                    <option value="N1">N1</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Kategori *</label>
+                                <select id="form-kotoba-kategori" required class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                                    <!-- Dynamic -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Bab</label>
+                                <input type="text" id="form-kotoba-bab" placeholder="Contoh: Bab 1" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Arti Bahasa Indonesia *</label>
+                                <input type="text" id="form-kotoba-arti-id" required placeholder="Contoh: Makan" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Arti English *</label>
+                                <input type="text" id="form-kotoba-arti-en" required placeholder="Contoh: To eat" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="resetKotobaForm()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl">Batal / Reset</button>
+                            <button type="submit" class="px-5 py-2 bg-crimson-600 hover:bg-crimson-700 text-white text-xs font-bold rounded-xl shadow-sm">Simpan Kotoba</button>
+                        </div>
+                    </form>
+
+                    <div class="border border-slate-200 rounded-2xl p-5 bg-white space-y-3">
+                        <h4 class="font-bold text-sm text-slate-800">Input banyak Kotoba dari tabel</h4>
+                        <p class="text-xs text-slate-500">Salin tabel spreadsheet lalu tempel di sini. Urutan kolom: kana, romaji, arti_id, arti_en, level, kategori, bab. Kolom level/kategori/bab boleh dikosongkan.</p>
+                        <textarea id="paste-kotoba-table" rows="5" placeholder="kana&#9;romaji&#9;arti_id&#9;arti_en&#9;level&#9;kategori&#9;bab" class="w-full p-3 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-crimson-600/30"></textarea>
+                        <button type="button" onclick="importPastedTable('kotoba')" class="px-4 py-2 bg-crimson-600 hover:bg-crimson-700 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-paste mr-1"></i> Tambahkan Kotoba</button>
+                    </div>
+
+                    <!-- Table Preview Data Kotoba Active Level -->
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h4 class="font-bold text-sm text-slate-800">Data Kotoba Terdaftar (Level Aktif: <span class="active-level-label">N5</span>)</h4>
+                            <button id="delete-selected-kotoba" onclick="deleteSelectedAdminItems('kotoba')" disabled class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed"><i class="fa-solid fa-trash mr-1"></i>Hapus Terpilih (<span id="selected-kotoba-count">0</span>)</button>
+                        </div>
+                        <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl">
+                            <table class="w-full text-left text-xs text-slate-700">
+                                <thead class="bg-slate-100 text-slate-800 font-bold sticky top-0">
+                                    <tr>
+                                        <th class="p-2 text-center"><input id="select-all-kotoba" type="checkbox" onchange="toggleAllAdminRows('kotoba', this.checked)" aria-label="Pilih semua Kotoba" class="accent-crimson-600"></th>
+                                        <th class="p-2">Kana</th>
+                                        <th class="p-2">Romaji</th>
+                                        <th class="p-2">Kategori</th>
+                                        <th class="p-2">Bab</th>
+                                        <th class="p-2">Arti Indonesia</th>
+                                        <th class="p-2">Arti English</th>
+                                        <th class="p-2 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-kotoba-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: INPUT / KELOLA KANJI MANUAL -->
+                <div id="admin-tab-kanji" class="admin-tab-content space-y-6 hidden">
+                    <form onsubmit="saveKanjiManual(event)" class="border border-slate-200 rounded-2xl p-5 bg-slate-50 space-y-4">
+                        <h4 class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2">Tambah / Edit Kanji Kotoba Manual</h4>
+                        <input type="hidden" id="form-kanji-id">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Kanji Kotoba *</label>
+                                <input type="text" id="form-kanji-kanji" required placeholder="Contoh: 日本" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Kana (Cara Baca) *</label>
+                                <input type="text" id="form-kanji-kana" required placeholder="Contoh: にほん" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Romaji *</label>
+                                <input type="text" id="form-kanji-romaji" required placeholder="Contoh: nihon" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Level JLPT *</label>
+                                <select id="form-kanji-level" required class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                                    <option value="N5">N5</option>
+                                    <option value="N4">N4</option>
+                                    <option value="N3">N3</option>
+                                    <option value="N2">N2</option>
+                                    <option value="N1">N1</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Arti Bahasa Indonesia *</label>
+                                <input type="text" id="form-kanji-arti-id" required placeholder="Contoh: Jepang" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Arti English *</label>
+                                <input type="text" id="form-kanji-arti-en" required placeholder="Contoh: Japan" class="w-full py-2 px-3 text-xs border border-slate-200 rounded-xl focus:bg-white focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="resetKanjiForm()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl">Batal / Reset</button>
+                            <button type="submit" class="px-5 py-2 bg-indigoNavy-800 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm">Simpan Kanji</button>
+                        </div>
+                    </form>
+
+                    <div class="border border-slate-200 rounded-2xl p-5 bg-white space-y-3">
+                        <h4 class="font-bold text-sm text-slate-800">Input banyak Kanji Kotoba dari tabel</h4>
+                        <p class="text-xs text-slate-500">Salin tabel spreadsheet lalu tempel di sini. Urutan kolom: kanji, kana, romaji, arti_id, arti_en, level. Kolom arti_en/level boleh dikosongkan.</p>
+                        <textarea id="paste-kanji-table" rows="5" placeholder="kanji&#9;kana&#9;romaji&#9;arti_id&#9;arti_en&#9;level" class="w-full p-3 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigoNavy-800/30"></textarea>
+                        <button type="button" onclick="importPastedTable('kanji')" class="px-4 py-2 bg-indigoNavy-800 hover:bg-slate-800 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-paste mr-1"></i> Tambahkan Kanji</button>
+                    </div>
+
+                    <!-- Table Preview Data Kanji Active Level -->
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h4 class="font-bold text-sm text-slate-800">Data Kanji Terdaftar (Level Aktif: <span class="active-level-label">N5</span>)</h4>
+                            <button id="delete-selected-kanji" onclick="deleteSelectedAdminItems('kanji')" disabled class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed"><i class="fa-solid fa-trash mr-1"></i>Hapus Terpilih (<span id="selected-kanji-count">0</span>)</button>
+                        </div>
+                        <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl">
+                            <table class="w-full text-left text-xs text-slate-700">
+                                <thead class="bg-slate-100 text-slate-800 font-bold sticky top-0">
+                                    <tr>
+                                        <th class="p-2 text-center"><input id="select-all-kanji" type="checkbox" onchange="toggleAllAdminRows('kanji', this.checked)" aria-label="Pilih semua Kanji" class="accent-crimson-600"></th>
+                                        <th class="p-2">Kanji</th>
+                                        <th class="p-2">Kana</th>
+                                        <th class="p-2">Romaji</th>
+                                        <th class="p-2">Arti Indonesia</th>
+                                        <th class="p-2">Arti English</th>
+                                        <th class="p-2 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-kanji-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: KELOLA KATEGORI KOTOBA -->
+                <div id="admin-tab-kategori" class="admin-tab-content space-y-6 hidden">
+                    <form onsubmit="addCategory(event)" class="flex gap-2">
+                        <input type="text" id="form-category-input" placeholder="Nama Kategori Baru (Misal: Tata Bahasa, Kaiwa)" required class="flex-grow py-2 px-3 text-xs border border-slate-200 rounded-xl focus:outline-none">
+                        <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">Tambah</button>
+                    </form>
+
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-sm text-slate-800">Daftar Kategori Saat Ini</h4>
+                        <div id="admin-category-list" class="flex flex-wrap gap-2">
+                            <!-- Dynamic category tags -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: PENGATURAN ADMIN (PIN & RESET) -->
+                <div id="admin-tab-settings" class="admin-tab-content space-y-6 hidden">
+                    <!-- Ganti PIN -->
+                    <form onsubmit="changeAdminPin(event)" class="border border-slate-200 p-4 rounded-xl bg-white space-y-3">
+                        <h4 class="font-bold text-sm text-slate-800">Ubah PIN Mode Admin</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="password" id="pin-old" placeholder="PIN Lama" required class="py-2 px-3 text-xs border border-slate-200 rounded-xl">
+                            <input type="password" id="pin-new" placeholder="PIN Baru" required class="py-2 px-3 text-xs border border-slate-200 rounded-xl">
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">Update PIN</button>
+                    </form>
+
+                    <!-- Reset Master Data -->
+                    <div class="border border-red-200 p-4 rounded-xl bg-red-50/50 space-y-2">
+                        <h4 class="font-bold text-sm text-red-800">Reset Data Bawaan Pabrik</h4>
+                        <p class="text-xs text-red-600">Mengembalikan seluruh data Kotoba dan Kanji kembali ke dataset default awal N5 & N4.</p>
+                        <button onclick="resetDataToDefault()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Reset Seluruh Data LocalStorage
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ========================================================================= */
+        /* DEFAULT INITIAL DATASETS (N5 & N4 DEFAULTS)                               */
+        /* ========================================================================= */
+        const DEFAULT_CATEGORIES = ["Kata Kerja", "Kata Benda", "Kata Sifat -i", "Kata Sifat -na", "Salam & Sehari-hari", "Angka & Waktu"];
+
+        const DEFAULT_KOTOBA = [
+            // N5
+            { id: "k1", level: "N5", kana: "たべる", romaji: "taberu", arti_id: "Makan", arti_en: "To eat", kategori: "Kata Kerja" },
+            { id: "k2", level: "N5", kana: "のむ", romaji: "nomu", arti_id: "Minum", arti_en: "To drink", kategori: "Kata Kerja" },
+            { id: "k3", level: "N5", kana: "いす", romaji: "isu", arti_id: "Kursi", arti_en: "Chair", kategori: "Kata Benda" },
+            { id: "k4", level: "N5", kana: "つくえ", romaji: "tsukue", arti_id: "Meja", arti_en: "Desk / Table", kategori: "Kata Benda" },
+            { id: "k5", level: "N5", kana: "おおきい", romaji: "ookii", arti_id: "Besar", arti_en: "Big", kategori: "Kata Sifat -i" },
+            { id: "k6", level: "N5", kana: "ちいさい", romaji: "chiisai", arti_id: "Kecil", arti_en: "Small", kategori: "Kata Sifat -i" },
+            { id: "k7", level: "N5", kana: "しずか", romaji: "shizuka", arti_id: "Tenang / Sunyi", arti_en: "Quiet", kategori: "Kata Sifat -na" },
+            { id: "k8", level: "N5", kana: "おはよう", romaji: "ohayou", arti_id: "Selamat Pagi", arti_en: "Good morning", kategori: "Salam & Sehari-hari" },
+            
+            // N4
+            { id: "k9", level: "N4", kana: "あつめる", romaji: "atsumeru", arti_id: "Mengumpulkan", arti_en: "To collect", kategori: "Kata Kerja" },
+            { id: "k10", level: "N4", kana: "しらべる", romaji: "shiraberu", arti_id: "Memeriksa / Menyelidiki", arti_en: "To investigate", kategori: "Kata Kerja" },
+            { id: "k11", level: "N4", kana: "けいざい", romaji: "keizai", arti_id: "Ekonomi", arti_en: "Economy", kategori: "Kata Benda" },
+            { id: "k12", level: "N4", kana: "あんぜん", romaji: "anzen", arti_id: "Aman", arti_en: "Safe", kategori: "Kata Sifat -na" }
+        ];
+
+        const DEFAULT_KANJI = [
+            // N5
+            { id: "j1", level: "N5", kanji: "日本", kana: "にほん", romaji: "nihon", arti_id: "Jepang", arti_en: "Japan" },
+            { id: "j2", level: "N5", kanji: "食べる", kana: "たべる", romaji: "taberu", arti_id: "Makan", arti_en: "To eat" },
+            { id: "j3", level: "N5", kanji: "私", kana: "わたし", romaji: "watashi", arti_id: "Saya", arti_en: "I / Me" },
+            { id: "j4", level: "N5", kanji: "水", kana: "みず", romaji: "mizu", arti_id: "Air", arti_en: "Water" },
+            { id: "j5", level: "N5", kanji: "学生", kana: "がくせい", romaji: "gakusei", arti_id: "Siswa / Pelajar", arti_en: "Student" },
+
+            // N4
+            { id: "j6", level: "N4", kanji: "世界", kana: "せかい", romaji: "sekai", arti_id: "Dunia", arti_en: "World" },
+            { id: "j7", level: "N4", kanji: "経験", kana: "けいけん", romaji: "keiken", arti_id: "Pengalaman", arti_en: "Experience" },
+            { id: "j8", level: "N4", kanji: "準備", kana: "じゅんび", romaji: "junbi", arti_id: "Persiapan", arti_en: "Preparation" }
+        ];
+
+
+        /* ========================================================================= */
+        /* STATE MANAGEMENT                                                          */
+        /* ========================================================================= */
+        let currentLevel = "N5";
+        let currentKotobaView = "grid"; // 'grid', 'table', 'flashcard', 'quiz'
+        let currentKanjiView = "grid";  // 'grid', 'table', 'flashcard', 'quiz'
+        let adminPin = "1234";
+
+        let dbCategories = [];
+        let dbKotoba = [];
+        let dbKanji = [];
+
+        // Flashcard States
+        let kotobaFcIndex = 0;
+        let kotobaFcFlipped = false;
+        let kanjiFcIndex = 0;
+        let kanjiFcFlipped = false;
+
+        // Quiz States
+        let kotobaQuizState = { questions: [], currentIndex: 0, score: 0, completed: false, selectedOption: null, started: false, wrongAnswers: [] };
+        let kanjiQuizState = { questions: [], currentIndex: 0, score: 0, completed: false, selectedOption: null, started: false, wrongAnswers: [] };
+
+
+        /* ========================================================================= */
+        /* INITIALIZATION & STORAGE                                                  */
+        /* ========================================================================= */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDatabase();
+            initUI();
+        });
+
+        function loadDatabase() {
+            const savedCat = localStorage.getItem('nihongo_categories');
+            const savedKotoba = localStorage.getItem('nihongo_kotoba');
+            const savedKanji = localStorage.getItem('nihongo_kanji');
+            const savedPin = localStorage.getItem('nihongo_admin_pin');
+
+            dbCategories = savedCat ? JSON.parse(savedCat) : [...DEFAULT_CATEGORIES];
+            dbKotoba = savedKotoba ? JSON.parse(savedKotoba) : [...DEFAULT_KOTOBA];
+            dbKanji = savedKanji ? JSON.parse(savedKanji) : [...DEFAULT_KANJI];
+            if (savedPin) adminPin = savedPin;
+
+            saveDatabase();
+        }
+
+        function saveDatabase() {
+            localStorage.setItem('nihongo_categories', JSON.stringify(dbCategories));
+            localStorage.setItem('nihongo_kotoba', JSON.stringify(dbKotoba));
+            localStorage.setItem('nihongo_kanji', JSON.stringify(dbKanji));
+            localStorage.setItem('nihongo_admin_pin', adminPin);
+        }
+
+
+        /* ========================================================================= */
+        /* CORE UI LOGIC & NAVIGATION                                                */
+        /* ========================================================================= */
+        function initUI() {
+            updateLevelButtons();
+            populateCategoryDropdowns();
+            renderAllViews();
+        }
+
+        function setLevel(level) {
+            currentLevel = level;
+            updateLevelButtons();
+            
+            // Reset indices & quiz states on level change
+            kotobaFcIndex = 0;
+            kotobaFcFlipped = false;
+            kanjiFcIndex = 0;
+            kanjiFcFlipped = false;
+            
+            kotobaQuizState.completed = false;
+            kanjiQuizState.completed = false;
+
+            renderAllViews();
+        }
+
+        function updateLevelButtons() {
+            document.querySelectorAll('.level-btn').forEach(btn => {
+                btn.className = "level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap text-slate-600 hover:text-slate-900";
+            });
+            const activeBtn = document.getElementById(`btn-level-${currentLevel}`);
+            if (activeBtn) {
+                activeBtn.className = "level-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 whitespace-nowrap bg-crimson-600 text-white shadow-sm";
+            }
+
+            // Update Labels in Admin Table Header
+            document.querySelectorAll('.active-level-label').forEach(el => el.textContent = currentLevel);
+        }
+
+        function populateCategoryDropdowns() {
+            const filterSelect = document.getElementById('filter-kotoba-kategori');
+            const formSelect = document.getElementById('form-kotoba-kategori');
+            const babSelect = document.getElementById('filter-kotoba-bab');
+
+            // Save filter value
+            const currentFilterVal = filterSelect.value;
+            const currentBabVal = babSelect.value;
+
+            filterSelect.innerHTML = '<option value="ALL">Semua Kategori</option>';
+            formSelect.innerHTML = '';
+
+            dbCategories.forEach(cat => {
+                filterSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+                formSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+
+            filterSelect.value = dbCategories.includes(currentFilterVal) ? currentFilterVal : "ALL";
+
+            const hasUnassignedBab = dbKotoba.some(item => !String(item.bab || '').trim());
+            const babList = [...new Set(dbKotoba.map(item => String(item.bab || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+            babSelect.innerHTML = '<option value="ALL">Semua Bab</option>' + babList.map(bab => `<option value="${bab}">${bab}</option>`).join('') + (hasUnassignedBab ? '<option value="__UNASSIGNED__">Bab belum diatur</option>' : '');
+            babSelect.value = babList.includes(currentBabVal) || (currentBabVal === '__UNASSIGNED__' && hasUnassignedBab) ? currentBabVal : 'ALL';
+        }
+
+        function checkEmptyBanner(filteredKotobaCount, filteredKanjiCount) {
+            const banner = document.getElementById('empty-level-banner');
+            if (filteredKotobaCount === 0 && filteredKanjiCount === 0) {
+                document.getElementById('empty-banner-title').textContent = `Materi Level ${currentLevel} Masih Kosong`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function renderAllViews() {
+            renderKotoba();
+            renderKanji();
+        }
+
+
+        /* ========================================================================= */
+        /* SPEECH SYNTHESIS (AUDIO NATIVE JA-JP)                                     */
+        /* ========================================================================= */
+        function playAudio(text) {
+            if (!('speechSynthesis' in window)) {
+                alert("Browser Anda tidak mendukung Web Speech API untuk Audio.");
+                return;
+            }
+            window.speechSynthesis.cancel(); // Stop ongoing speech
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ja-JP';
+
+            const speed = parseFloat(document.getElementById('global-speed').value || '1.0');
+            utterance.rate = speed;
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+
+        /* ========================================================================= */
+        /* KOTOBA SECTION LOGIC                                                      */
+        /* ========================================================================= */
+        function setKotobaView(mode) {
+            currentKotobaView = mode;
+            document.querySelectorAll('.kotoba-view-btn').forEach(btn => {
+                btn.className = "kotoba-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900";
+            });
+            const active = document.getElementById(`btn-kotoba-${mode}`);
+            if (active) active.className = "kotoba-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-crimson-600 shadow-sm border border-slate-200/60 font-bold";
+
+            renderKotoba();
+        }
+
+        function getFilteredKotoba() {
+            const search = document.getElementById('search-kotoba').value.toLowerCase().trim();
+            const catFilter = document.getElementById('filter-kotoba-kategori').value;
+            const babFilter = document.getElementById('filter-kotoba-bab').value;
+
+            return dbKotoba.filter(item => {
+                if (item.level !== currentLevel) return false;
+                if (catFilter !== 'ALL' && item.kategori !== catFilter) return false;
+                if (babFilter === '__UNASSIGNED__' && String(item.bab || '').trim()) return false;
+                if (babFilter !== 'ALL' && babFilter !== '__UNASSIGNED__' && String(item.bab || '').trim() !== babFilter) return false;
+                if (search) {
+                    const matchKana = item.kana.toLowerCase().includes(search);
+                    const matchRomaji = item.romaji.toLowerCase().includes(search);
+                    const matchId = item.arti_id.toLowerCase().includes(search);
+                    const matchEn = item.arti_en.toLowerCase().includes(search);
+                    return matchKana || matchRomaji || matchId || matchEn;
+                }
+                return true;
+            });
+        }
+
+        function renderKotoba() {
+            const data = getFilteredKotoba();
+            const container = document.getElementById('kotoba-view-container');
+            const showRomaji = document.getElementById('toggle-kotoba-romaji').checked;
+            const showEn = document.getElementById('toggle-kotoba-en').checked;
+            const showIndo = document.getElementById('toggle-kotoba-indo').checked;
+
+            checkEmptyBanner(data.length, getFilteredKanji().length);
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-8 text-center border border-slate-200 text-slate-400 space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl"></i>
+                        <p class="text-xs">Tidak ada data Kotoba untuk level ${currentLevel} dengan filter ini.</p>
+                    </div>`;
+                return;
+            }
+
+            if (currentKotobaView === 'grid') {
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${data.map(item => `
+                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all group relative flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${item.kategori}</span>
+                                        <button onclick="playAudio('${item.kana}')" class="w-8 h-8 rounded-full bg-crimson-600/10 text-crimson-600 flex items-center justify-center hover:bg-crimson-600 hover:text-white transition">
+                                            <i class="fa-solid fa-volume-high text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Utama: Kana & Romaji -->
+                                    <div class="my-3">
+                                        <h3 class="text-2xl font-bold font-jp text-slate-900 group-hover:text-crimson-600 transition">${item.kana}</h3>
+                                        ${showRomaji ? `<p class="text-xs font-semibold text-slate-400 mt-0.5">${item.romaji}</p>` : ''}
+                                    </div>
+                                </div>
+                                <!-- Arti Belakang -->
+                                <div class="pt-3 border-t border-slate-100 space-y-0.5">
+                                    ${showIndo ? `<p class="text-xs font-bold text-slate-700">${item.arti_id}</p>` : ''}
+                                    ${showEn ? `<p class="text-[11px] text-slate-400 italic">${item.arti_en}</p>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+            } else if (currentKotobaView === 'table') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-700">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-800 font-bold uppercase tracking-wider text-[11px]">
+                                    <tr>
+                                        <th class="p-3.5">Kana</th>
+                                        ${showRomaji ? '<th class="p-3.5">Romaji</th>' : ''}
+                                        <th class="p-3.5">Kategori</th>
+                                        ${showIndo ? '<th class="p-3.5">Arti Indonesia</th>' : ''}
+                                        ${showEn ? '<th class="p-3.5">Arti English</th>' : ''}
+                                        <th class="p-3.5 text-center">Audio</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${data.map(item => `
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="p-3.5 font-bold font-jp text-base text-slate-900">${item.kana}</td>
+                                            ${showRomaji ? `<td class="p-3.5 text-slate-500 font-medium">${item.romaji}</td>` : ''}
+                                            <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">${item.kategori}</span></td>
+                                            ${showIndo ? `<td class="p-3.5 font-semibold text-slate-800">${item.arti_id}</td>` : ''}
+                                            ${showEn ? `<td class="p-3.5 text-slate-400 italic">${item.arti_en}</td>` : ''}
+                                            <td class="p-3.5 text-center">
+                                                <button onclick="playAudio('${item.kana}')" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-crimson-600 hover:text-white text-slate-600 transition inline-flex items-center justify-center">
+                                                    <i class="fa-solid fa-volume-high text-xs"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            } else if (currentKotobaView === 'flashcard') {
+                renderKotobaFlashcard(data);
+            } else if (currentKotobaView === 'quiz') {
+                renderKotobaQuiz(data);
+            }
+        }
+
+        /* Kotoba Flashcard View */
+        function renderKotobaFlashcard(data) {
+            if (kotobaFcIndex >= data.length) kotobaFcIndex = 0;
+            const currentItem = data[kotobaFcIndex];
+
+            const container = document.getElementById('kotoba-view-container');
+            container.innerHTML = `
+                <div class="max-w-md mx-auto space-y-4">
+                    <!-- Tracker -->
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span>Kartu ${kotobaFcIndex + 1} dari ${data.length}</span>
+                        <span class="px-2 py-0.5 bg-slate-200 rounded-full text-[10px] font-bold text-slate-700">${currentItem.kategori}</span>
+                    </div>
+
+                    <!-- 3D Card -->
+                    <div class="perspective-1000 h-64 w-full cursor-pointer" onclick="toggleKotobaFcFlip()">
+                        <div class="relative w-full h-full duration-500 transform-style-3d transition-transform ${kotobaFcFlipped ? 'rotate-y-180' : ''}">
+                            <!-- Front Side (Kana + Romaji) -->
+                            <div class="absolute inset-0 bg-white border-2 border-crimson-600/30 rounded-3xl p-6 shadow-lg backface-hidden flex flex-col justify-between text-center bg-japan-pattern">
+                                <div class="flex justify-between items-center text-xs text-slate-400">
+                                    <span>Klik untuk balik <i class="fa-solid fa-rotate mr-1"></i></span>
+                                    <button onclick="event.stopPropagation(); playAudio('${currentItem.kana}')" class="w-8 h-8 rounded-full bg-crimson-600/10 text-crimson-600 hover:bg-crimson-600 hover:text-white transition">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                                <div class="my-auto space-y-2">
+                                    <h2 class="text-4xl font-black font-jp text-slate-900">${currentItem.kana}</h2>
+                                    ${document.getElementById('toggle-kotoba-romaji').checked ? `<p class="text-sm font-semibold text-slate-400">${currentItem.romaji}</p>` : ''}
+                                </div>
+                                <div class="text-[11px] font-semibold text-crimson-600">DEPAN (KANA)</div>
+                            </div>
+
+                            <!-- Back Side (Arti) -->
+                            <div class="absolute inset-0 bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 shadow-lg backface-hidden rotate-y-180 flex flex-col justify-between text-center text-white">
+                                <div class="text-xs text-slate-400">BAGIAN BELAKANG (ARTI)</div>
+                                <div class="my-auto space-y-2">
+                                    ${document.getElementById('toggle-kotoba-indo').checked ? `<h3 class="text-2xl font-bold text-sakura-100">${currentItem.arti_id}</h3>` : ''}
+                                    ${document.getElementById('toggle-kotoba-en').checked ? `<p class="text-sm text-slate-400 italic">${currentItem.arti_en}</p>` : ''}
+                                </div>
+                                <div class="text-[11px] text-slate-500">Klik untuk balik ke depan</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Controls -->
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="navKotobaFc(-1, ${data.length})" class="flex-1 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> SBLM
+                        </button>
+                        <button onclick="navKotobaFc(1, ${data.length})" class="flex-1 py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white text-xs font-bold rounded-xl transition shadow-md">
+                            LNJT <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>`;
+        }
+
+        function toggleKotobaFcFlip() {
+            kotobaFcFlipped = !kotobaFcFlipped;
+            renderKotoba();
+        }
+
+        function navKotobaFc(dir, total) {
+            kotobaFcFlipped = false;
+            kotobaFcIndex = (kotobaFcIndex + dir + total) % total;
+            renderKotoba();
+        }
+
+        /* Kotoba Quiz View */
+        function initKotobaQuiz(data, questionCount = 10) {
+            const shuffled = [...data].sort(() => 0.5 - Math.random());
+            const questions = shuffled.slice(0, questionCount).map(item => {
+                // Generate 3 wrong options
+                const otherOptions = dbKotoba.filter(k => k.id !== item.id);
+                const wrongOptions = [...otherOptions].sort(() => 0.5 - Math.random()).slice(0, 3).map(o => o.arti_id);
+                const options = [...wrongOptions, item.arti_id].sort(() => 0.5 - Math.random());
+
+                return {
+                    question: item.kana,
+                    romaji: item.romaji,
+                    correctAnswer: item.arti_id,
+                    options: options
+                };
+            });
+
+            kotobaQuizState = { questions, currentIndex: 0, score: 0, completed: false, selectedOption: null, started: true, wrongAnswers: [] };
+        }
+
+        function startKotobaQuiz() {
+            const count = Number(document.getElementById('kotoba-quiz-count').value);
+            initKotobaQuiz(getFilteredKotoba(), count);
+            renderKotoba();
+        }
+
+        function renderKotobaQuiz(data) {
+            const state = kotobaQuizState;
+            const container = document.getElementById('kotoba-view-container');
+
+            if (!state.started) {
+                const maxCount = data.length;
+                container.innerHTML = `<div class="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 text-center space-y-4 shadow-sm">
+                    <h3 class="text-xl font-bold text-slate-900">Mulai Kuis Kotoba</h3>
+                    ${maxCount < 10 ? `<p class="text-sm text-amber-700">Minimal 10 kata diperlukan. Data yang tersedia saat ini: ${maxCount}.</p>` : `<p class="text-xs text-slate-500">Pilih jumlah soal (10–${maxCount})</p><select id="kotoba-quiz-count" class="w-full p-2 border border-slate-200 rounded-xl text-sm">${Array.from({length: maxCount - 9}, (_, i) => `<option value="${i + 10}">${i + 10} soal</option>`).join('')}</select><button onclick="startKotobaQuiz()" class="w-full py-2.5 bg-crimson-600 text-white rounded-xl text-xs font-bold">Mulai Mengerjakan</button>`}
+                </div>`;
+                return;
+            }
+
+            if (state.completed) {
+                container.innerHTML = `
+                    <div class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4">
+                    <div class="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-6 text-center space-y-4 shadow-xl">
+                        <div class="w-16 h-16 bg-crimson-600/10 text-crimson-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900">Kuis Kotoba Selesai!</h3>
+                        <p class="text-xs text-slate-500">Nilai akhir: <b>${state.score} / ${state.questions.length * 10}</b> · Benar: <b>${state.score / 10} dari ${state.questions.length}</b></p>
+                        ${state.wrongAnswers.length ? `<div class="text-left bg-red-50 rounded-xl p-3"><p class="text-xs font-bold text-red-800 mb-2">Kata yang salah</p>${state.wrongAnswers.map(item => `<p class="text-xs text-red-700"><b>${item.word}</b>: jawabanmu “${item.answer}”, benar “${item.correct}”</p>`).join('')}</div>` : '<p class="text-sm font-semibold text-emerald-700">Semua jawaban benar!</p>'}
+                        <button onclick="kotobaQuizState.started = false; kotobaQuizState.completed = false; kotobaQuizState.questions = []; renderKotoba();" class="w-full py-2.5 bg-crimson-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-crimson-700 transition">Tutup</button>
+                    </div></div>`;
+                return;
+            }
+
+            const q = state.questions[state.currentIndex];
+
+            container.innerHTML = `
+                <div class="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 space-y-5 shadow-sm">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+                        <span>SOAL ${state.currentIndex + 1} DARI ${state.questions.length}</span>
+                        <span>SKOR: ${state.score}</span>
+                    </div>
+
+                    <div class="text-center py-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <h2 class="text-3xl font-black font-jp text-slate-900">${q.question}</h2>
+                        <p class="text-xs text-slate-400 font-semibold mt-1">${q.romaji}</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        ${q.options.map(opt => {
+                            let btnClass = "w-full py-3 px-4 text-xs font-bold text-left rounded-xl border border-slate-200 hover:bg-slate-50 transition";
+                            if (state.selectedOption) {
+                                if (opt === q.correctAnswer) btnClass = "w-full py-3 px-4 text-xs font-bold text-left rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800";
+                                else if (opt === state.selectedOption) btnClass = "w-full py-3 px-4 text-xs font-bold text-left rounded-xl border-2 border-red-500 bg-red-50 text-red-800";
+                            }
+                            return `<button onclick="submitKotobaQuizAnswer('${opt.replace(/'/g, "\\'")}')" ${state.selectedOption ? 'disabled' : ''} class="${btnClass}">${opt}</button>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function submitKotobaQuizAnswer(option) {
+            const state = kotobaQuizState;
+            state.selectedOption = option;
+            const q = state.questions[state.currentIndex];
+
+            if (option === q.correctAnswer) {
+                state.score += 10;
+            } else state.wrongAnswers.push({ word: q.question, answer: option, correct: q.correctAnswer });
+
+            renderKotoba();
+
+            setTimeout(() => {
+                state.selectedOption = null;
+                if (state.currentIndex + 1 < state.questions.length) {
+                    state.currentIndex++;
+                } else {
+                    state.completed = true;
+                }
+                renderKotoba();
+            }, 1200);
+        }
+
+        function shuffleKotoba() {
+            dbKotoba.sort(() => 0.5 - Math.random());
+            renderKotoba();
+        }
+
+        function resetKotobaFilters() {
+            document.getElementById('search-kotoba').value = '';
+            document.getElementById('filter-kotoba-kategori').value = 'ALL';
+            document.getElementById('filter-kotoba-bab').value = 'ALL';
+            document.getElementById('toggle-kotoba-romaji').checked = true;
+            document.getElementById('toggle-kotoba-en').checked = true;
+            document.getElementById('toggle-kotoba-indo').checked = true;
+            renderKotoba();
+        }
+
+
+        /* ========================================================================= */
+        /* KANJI KOTOBA SECTION LOGIC                                                */
+        /* ========================================================================= */
+        function setKanjiView(mode) {
+            currentKanjiView = mode;
+            document.querySelectorAll('.kanji-view-btn').forEach(btn => {
+                btn.className = "kanji-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900";
+            });
+            const active = document.getElementById(`btn-kanji-${mode}`);
+            if (active) active.className = "kanji-view-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-indigoNavy-800 shadow-sm border border-slate-200/60 font-bold";
+
+            renderKanji();
+        }
+
+        function getFilteredKanji() {
+            const search = document.getElementById('search-kanji').value.toLowerCase().trim();
+
+            return dbKanji.filter(item => {
+                if (item.level !== currentLevel) return false;
+                if (search) {
+                    const matchKanji = item.kanji.toLowerCase().includes(search);
+                    const matchKana = item.kana.toLowerCase().includes(search);
+                    const matchRomaji = item.romaji.toLowerCase().includes(search);
+                    const matchId = item.arti_id.toLowerCase().includes(search);
+                    const matchEn = item.arti_en.toLowerCase().includes(search);
+                    return matchKanji || matchKana || matchRomaji || matchId || matchEn;
+                }
+                return true;
+            });
+        }
+
+        function renderKanji() {
+            const data = getFilteredKanji();
+            const container = document.getElementById('kanji-view-container');
+            const showRomaji = document.getElementById('toggle-kanji-romaji').checked;
+            const showEn = document.getElementById('toggle-kanji-en').checked;
+            const showKana = document.getElementById('toggle-kanji-kana').checked;
+            const showIndo = document.getElementById('toggle-kanji-indo').checked;
+
+            checkEmptyBanner(getFilteredKotoba().length, data.length);
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-8 text-center border border-slate-200 text-slate-400 space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl"></i>
+                        <p class="text-xs">Tidak ada data Kanji Kotoba untuk level ${currentLevel} dengan filter ini.</p>
+                    </div>`;
+                return;
+            }
+
+            if (currentKanjiView === 'grid') {
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${data.map(item => `
+                            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all group relative flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigoNavy-800/10 text-indigoNavy-800 border border-indigoNavy-800/20">KANJI KOTOBA</span>
+                                        <button onclick="playAudio('${item.kanji}')" class="w-8 h-8 rounded-full bg-indigoNavy-800/10 text-indigoNavy-800 flex items-center justify-center hover:bg-indigoNavy-800 hover:text-white transition">
+                                            <i class="fa-solid fa-volume-high text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Utama: Kanji -->
+                                    <div class="my-3">
+                                        <h3 class="text-3xl font-black font-jp text-slate-900 group-hover:text-indigoNavy-800 transition tracking-wide">${item.kanji}</h3>
+                                        ${showKana ? `<p class="text-xs font-bold text-slate-600 mt-1 font-jp">${item.kana}</p>` : ''}
+                                        ${showRomaji ? `<p class="text-[11px] font-semibold text-slate-400">${item.romaji}</p>` : ''}
+                                    </div>
+                                </div>
+                                <!-- Arti Belakang -->
+                                <div class="pt-3 border-t border-slate-100 space-y-0.5">
+                                    ${showIndo ? `<p class="text-xs font-bold text-slate-700">${item.arti_id}</p>` : ''}
+                                    ${showEn ? `<p class="text-[11px] text-slate-400 italic">${item.arti_en}</p>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+            } else if (currentKanjiView === 'table') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-700">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-800 font-bold uppercase tracking-wider text-[11px]">
+                                    <tr>
+                                        <th class="p-3.5">Kanji</th>
+                                        ${showKana ? '<th class="p-3.5">Kana (Baca)</th>' : ''}
+                                        ${showRomaji ? '<th class="p-3.5">Romaji</th>' : ''}
+                                        ${showIndo ? '<th class="p-3.5">Arti Indonesia</th>' : ''}
+                                        ${showEn ? '<th class="p-3.5">Arti English</th>' : ''}
+                                        <th class="p-3.5 text-center">Audio</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${data.map(item => `
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="p-3.5 font-black font-jp text-lg text-slate-900">${item.kanji}</td>
+                                            ${showKana ? `<td class="p-3.5 font-bold font-jp text-slate-700 text-sm">${item.kana}</td>` : ''}
+                                            ${showRomaji ? `<td class="p-3.5 text-slate-500 font-medium">${item.romaji}</td>` : ''}
+                                            ${showIndo ? `<td class="p-3.5 font-semibold text-slate-800">${item.arti_id}</td>` : ''}
+                                            ${showEn ? `<td class="p-3.5 text-slate-400 italic">${item.arti_en}</td>` : ''}
+                                            <td class="p-3.5 text-center">
+                                                <button onclick="playAudio('${item.kanji}')" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-indigoNavy-800 hover:text-white text-slate-600 transition inline-flex items-center justify-center">
+                                                    <i class="fa-solid fa-volume-high text-xs"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            } else if (currentKanjiView === 'flashcard') {
+                renderKanjiFlashcard(data);
+            } else if (currentKanjiView === 'quiz') {
+                renderKanjiQuiz(data);
+            }
+        }
+
+        /* Kanji Flashcard View */
+        function renderKanjiFlashcard(data) {
+            if (kanjiFcIndex >= data.length) kanjiFcIndex = 0;
+            const currentItem = data[kanjiFcIndex];
+            const showKana = document.getElementById('toggle-kanji-kana').checked;
+            const showIndo = document.getElementById('toggle-kanji-indo').checked;
+
+            const container = document.getElementById('kanji-view-container');
+            container.innerHTML = `
+                <div class="max-w-md mx-auto space-y-4">
+                    <!-- Tracker -->
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span>Kartu ${kanjiFcIndex + 1} dari ${data.length}</span>
+                        <span class="px-2 py-0.5 bg-slate-200 rounded-full text-[10px] font-bold text-slate-700">KANJI KOTOBA</span>
+                    </div>
+
+                    <!-- 3D Card -->
+                    <div class="perspective-1000 h-64 w-full cursor-pointer" onclick="toggleKanjiFcFlip()">
+                        <div class="relative w-full h-full duration-500 transform-style-3d transition-transform ${kanjiFcFlipped ? 'rotate-y-180' : ''}">
+                            <!-- Front Side (Kanji Utama) -->
+                            <div class="absolute inset-0 bg-white border-2 border-indigoNavy-800/30 rounded-3xl p-6 shadow-lg backface-hidden flex flex-col justify-between text-center bg-japan-pattern">
+                                <div class="flex justify-between items-center text-xs text-slate-400">
+                                    <span>Klik untuk balik <i class="fa-solid fa-rotate mr-1"></i></span>
+                                    <button onclick="event.stopPropagation(); playAudio('${currentItem.kanji}')" class="w-8 h-8 rounded-full bg-indigoNavy-800/10 text-indigoNavy-800 hover:bg-indigoNavy-800 hover:text-white transition">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                                <div class="my-auto">
+                                    <h2 class="text-5xl font-black font-jp text-slate-900 tracking-wider">${currentItem.kanji}</h2>
+                                </div>
+                                <div class="text-[11px] font-semibold text-indigoNavy-800">DEPAN (KANJI KOTOBA)</div>
+                            </div>
+
+                            <!-- Back Side (Kana & Arti) -->
+                            <div class="absolute inset-0 bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 shadow-lg backface-hidden rotate-y-180 flex flex-col justify-between text-center text-white">
+                                <div class="text-xs text-slate-400">BAGIAN BELAKANG (CARA BACA & ARTI)</div>
+                                <div class="my-auto space-y-2">
+                                    ${showKana ? `<p class="text-xl font-bold font-jp text-indigo-300">${currentItem.kana}</p>` : ''}
+                                    <p class="text-xs font-semibold text-slate-400">${currentItem.romaji}</p>
+                                    <div class="pt-2 border-t border-slate-800">
+                                        ${showIndo ? `<h3 class="text-lg font-bold text-white">${currentItem.arti_id}</h3>` : ''}
+                                        <p class="text-xs text-slate-400 italic">${currentItem.arti_en}</p>
+                                    </div>
+                                </div>
+                                <div class="text-[11px] text-slate-500">Klik untuk balik ke depan</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Controls -->
+                    <div class="flex items-center justify-between gap-3">
+                        <button onclick="navKanjiFc(-1, ${data.length})" class="flex-1 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> SBLM
+                        </button>
+                        <button onclick="navKanjiFc(1, ${data.length})" class="flex-1 py-2.5 bg-indigoNavy-800 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition shadow-md">
+                            LNJT <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>`;
+        }
+
+        function toggleKanjiFcFlip() {
+            kanjiFcFlipped = !kanjiFcFlipped;
+            renderKanji();
+        }
+
+        function navKanjiFc(dir, total) {
+            kanjiFcFlipped = false;
+            kanjiFcIndex = (kanjiFcIndex + dir + total) % total;
+            renderKanji();
+        }
+
+        /* Kanji Quiz View */
+        function initKanjiQuiz(data, questionCount = 10) {
+            const shuffled = [...data].sort(() => 0.5 - Math.random());
+            const questions = shuffled.slice(0, questionCount).map(item => {
+                const otherOptions = dbKanji.filter(k => k.id !== item.id);
+                const wrongOptions = [...otherOptions].sort(() => 0.5 - Math.random()).slice(0, 3).map(o => `${o.kana} (${o.arti_id})`);
+                const correctOption = `${item.kana} (${item.arti_id})`;
+                const options = [...wrongOptions, correctOption].sort(() => 0.5 - Math.random());
+
+                return {
+                    question: item.kanji,
+                    correctAnswer: correctOption,
+                    options: options
+                };
+            });
+
+            kanjiQuizState = { questions, currentIndex: 0, score: 0, completed: false, selectedOption: null, started: true, wrongAnswers: [] };
+        }
+
+        function startKanjiQuiz() {
+            const count = Number(document.getElementById('kanji-quiz-count').value);
+            initKanjiQuiz(getFilteredKanji(), count);
+            renderKanji();
+        }
+
+        function renderKanjiQuiz(data) {
+            const state = kanjiQuizState;
+            const container = document.getElementById('kanji-view-container');
+
+            if (!state.started) {
+                const maxCount = data.length;
+                container.innerHTML = `<div class="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 text-center space-y-4 shadow-sm">
+                    <h3 class="text-xl font-bold text-slate-900">Mulai Kuis Kanji</h3>
+                    ${maxCount < 10 ? `<p class="text-sm text-amber-700">Minimal 10 kata diperlukan. Data yang tersedia saat ini: ${maxCount}.</p>` : `<p class="text-xs text-slate-500">Pilih jumlah soal (10–${maxCount})</p><select id="kanji-quiz-count" class="w-full p-2 border border-slate-200 rounded-xl text-sm">${Array.from({length: maxCount - 9}, (_, i) => `<option value="${i + 10}">${i + 10} soal</option>`).join('')}</select><button onclick="startKanjiQuiz()" class="w-full py-2.5 bg-indigoNavy-800 text-white rounded-xl text-xs font-bold">Mulai Mengerjakan</button>`}
+                </div>`;
+                return;
+            }
+
+            if (state.completed) {
+                container.innerHTML = `
+                    <div class="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4">
+                    <div class="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-6 text-center space-y-4 shadow-xl">
+                        <div class="w-16 h-16 bg-indigoNavy-800/10 text-indigoNavy-800 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900">Kuis Kanji Selesai!</h3>
+                        <p class="text-xs text-slate-500">Nilai akhir: <b>${state.score} / ${state.questions.length * 10}</b> · Benar: <b>${state.score / 10} dari ${state.questions.length}</b></p>
+                        ${state.wrongAnswers.length ? `<div class="text-left bg-red-50 rounded-xl p-3"><p class="text-xs font-bold text-red-800 mb-2">Kata yang salah</p>${state.wrongAnswers.map(item => `<p class="text-xs text-red-700"><b>${item.word}</b>: jawabanmu “${item.answer}”, benar “${item.correct}”</p>`).join('')}</div>` : '<p class="text-sm font-semibold text-emerald-700">Semua jawaban benar!</p>'}
+                        <button onclick="kanjiQuizState.started = false; kanjiQuizState.completed = false; kanjiQuizState.questions = []; renderKanji();" class="w-full py-2.5 bg-indigoNavy-800 text-white rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition">Tutup</button>
+                    </div></div>`;
+                return;
+            }
+
+            const q = state.questions[state.currentIndex];
+
+            container.innerHTML = `
+                <div class="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 space-y-5 shadow-sm">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+                        <span>SOAL ${state.currentIndex + 1} DARI ${state.questions.length}</span>
+                        <span>SKOR: ${state.score}</span>
+                    </div>
+
+                    <div class="text-center py-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <h2 class="text-4xl font-black font-jp text-slate-900">${q.question}</h2>
+                    </div>
+
+                    <div class="space-y-2">
+                        ${q.options.map(opt => {
+                            let btnClass = "w-full py-3 px-4 text-xs font-bold text-left rounded-xl border border-slate-200 hover:bg-slate-50 transition";
+                            if (state.selectedOption) {
+                                if (opt === q.correctAnswer) btnClass = "w-full py-3 px-4 text-xs font-bold text-left rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800";
+                                else if (opt === state.selectedOption) btnClass = "w-full py-3 px-4 text-xs font-bold text-left rounded-xl border-2 border-red-500 bg-red-50 text-red-800";
+                            }
+                            return `<button onclick="submitKanjiQuizAnswer('${opt.replace(/'/g, "\\'")}')" ${state.selectedOption ? 'disabled' : ''} class="${btnClass}">${opt}</button>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function submitKanjiQuizAnswer(option) {
+            const state = kanjiQuizState;
+            state.selectedOption = option;
+            const q = state.questions[state.currentIndex];
+
+            if (option === q.correctAnswer) {
+                state.score += 10;
+            } else state.wrongAnswers.push({ word: q.question, answer: option, correct: q.correctAnswer });
+
+            renderKanji();
+
+            setTimeout(() => {
+                state.selectedOption = null;
+                if (state.currentIndex + 1 < state.questions.length) {
+                    state.currentIndex++;
+                } else {
+                    state.completed = true;
+                }
+                renderKanji();
+            }, 1200);
+        }
+
+        function shuffleKanji() {
+            dbKanji.sort(() => 0.5 - Math.random());
+            renderKanji();
+        }
+
+        function resetKanjiFilters() {
+            document.getElementById('search-kanji').value = '';
+            document.getElementById('toggle-kanji-romaji').checked = true;
+            document.getElementById('toggle-kanji-en').checked = true;
+            document.getElementById('toggle-kanji-kana').checked = true;
+            document.getElementById('toggle-kanji-indo').checked = true;
+            renderKanji();
+        }
+
+
+        /* ========================================================================= */
+        /* ADMIN PANEL CONTROLLER & LOGIC                                           */
+        /* ========================================================================= */
+        function openAdminAuthModal() {
+            document.getElementById('admin-pin-input').value = '';
+            document.getElementById('admin-auth-modal').classList.remove('hidden');
+        }
+
+        function closeAdminAuthModal() {
+            document.getElementById('admin-auth-modal').classList.add('hidden');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const inputPin = document.getElementById('admin-pin-input').value;
+            if (inputPin === adminPin) {
+                closeAdminAuthModal();
+                openAdminModal();
+            } else {
+                alert("PIN Salah! Default PIN adalah 1234.");
+            }
+        }
+
+        function openAdminModal() {
+            setAdminTab('kotoba');
+            renderAdminTables();
+            document.getElementById('admin-modal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        function setAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.className = "admin-tab-btn pb-2 px-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition whitespace-nowrap";
+            });
+
+            const activeTab = document.getElementById(`admin-tab-${tabName}`);
+            const activeBtn = document.getElementById(`admin-tab-btn-${tabName}`);
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeBtn) activeBtn.className = "admin-tab-btn pb-2 px-3 text-xs font-bold border-b-2 border-crimson-600 text-crimson-600 transition whitespace-nowrap";
+
+            renderAdminTables();
+        }
+
+        function toggleAllAdminRows(type, checked) {
+            document.querySelectorAll(`input[data-admin-item="${type}"]`).forEach(input => { input.checked = checked; });
+            updateAdminBulkSelection(type);
+        }
+
+        function updateAdminBulkSelection(type) {
+            const checkboxes = [...document.querySelectorAll(`input[data-admin-item="${type}"]`)];
+            const selectedCount = checkboxes.filter(input => input.checked).length;
+            const allCheckbox = document.getElementById(`select-all-${type}`);
+            const deleteButton = document.getElementById(`delete-selected-${type}`);
+            const countLabel = document.getElementById(`selected-${type}-count`);
+            if (countLabel) countLabel.textContent = selectedCount;
+            if (deleteButton) deleteButton.disabled = selectedCount === 0;
+            if (allCheckbox) {
+                allCheckbox.checked = checkboxes.length > 0 && selectedCount === checkboxes.length;
+                allCheckbox.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
+            }
+        }
+
+        function deleteSelectedAdminItems(type) {
+            const selectedIds = [...document.querySelectorAll(`input[data-admin-item="${type}"]:checked`)].map(input => input.dataset.itemId);
+            if (!selectedIds.length) return;
+            const label = type === 'kotoba' ? 'Kotoba' : 'Kanji';
+            if (!confirm(`Hapus ${selectedIds.length} data ${label} yang dipilih?`)) return;
+
+            const selectedSet = new Set(selectedIds);
+            if (type === 'kotoba') dbKotoba = dbKotoba.filter(item => !selectedSet.has(String(item.id)));
+            else dbKanji = dbKanji.filter(item => !selectedSet.has(String(item.id)));
+
+            saveDatabase();
+            populateCategoryDropdowns();
+            renderAllViews();
+            renderAdminTables();
+        }
+
+        function renderAdminTables() {
+            // Kotoba Table
+            const activeKotoba = dbKotoba.filter(k => k.level === currentLevel);
+            const kotobaBody = document.getElementById('admin-kotoba-table-body');
+            kotobaBody.innerHTML = activeKotoba.map(item => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2 text-center"><input type="checkbox" data-admin-item="kotoba" data-item-id="${item.id}" onchange="updateAdminBulkSelection('kotoba')" aria-label="Pilih Kotoba ${item.kana}" class="accent-crimson-600"></td>
+                    <td class="p-2 font-bold font-jp">${item.kana}</td>
+                    <td class="p-2">${item.romaji}</td>
+                    <td class="p-2">${item.kategori}</td>
+                    <td class="p-2">${item.bab || '<span class="text-slate-400">—</span>'}</td>
+                    <td class="p-2">${item.arti_id}</td>
+                    <td class="p-2">${item.arti_en || '<span class="text-slate-400">—</span>'}</td>
+                    <td class="p-2 text-center space-x-1">
+                        <button onclick="editKotobaItem('${item.id}')" class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] font-bold">Edit</button>
+                        <button onclick="deleteKotobaItem('${item.id}')" class="px-2 py-1 bg-red-100 text-red-700 rounded text-[10px] font-bold">Hapus</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data.</td></tr>';
+
+            // Kanji Table
+            const activeKanji = dbKanji.filter(k => k.level === currentLevel);
+            const kanjiBody = document.getElementById('admin-kanji-table-body');
+            kanjiBody.innerHTML = activeKanji.map(item => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2 text-center"><input type="checkbox" data-admin-item="kanji" data-item-id="${item.id}" onchange="updateAdminBulkSelection('kanji')" aria-label="Pilih Kanji ${item.kanji}" class="accent-crimson-600"></td>
+                    <td class="p-2 font-black font-jp">${item.kanji}</td>
+                    <td class="p-2 font-jp">${item.kana}</td>
+                    <td class="p-2">${item.romaji}</td>
+                    <td class="p-2">${item.arti_id}</td>
+                    <td class="p-2">${item.arti_en || '<span class="text-slate-400">—</span>'}</td>
+                    <td class="p-2 text-center space-x-1">
+                        <button onclick="editKanjiItem('${item.id}')" class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] font-bold">Edit</button>
+                        <button onclick="deleteKanjiItem('${item.id}')" class="px-2 py-1 bg-red-100 text-red-700 rounded text-[10px] font-bold">Hapus</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data.</td></tr>';
+
+            updateAdminBulkSelection('kotoba');
+            updateAdminBulkSelection('kanji');
+
+            // Category List
+            const catList = document.getElementById('admin-category-list');
+            catList.innerHTML = dbCategories.map(cat => `
+                <div class="px-3 py-1.5 bg-slate-100 rounded-xl text-xs font-bold text-slate-700 flex items-center space-x-2 border border-slate-200">
+                    <span>${cat}</span>
+                    <button onclick="deleteCategory('${cat}')" class="text-slate-400 hover:text-red-600 ml-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+
+        /* PASTE SPREADSHEET TABLE HANDLER */
+        function importPastedTable(type) {
+            const isKotoba = type === 'kotoba';
+            const textarea = document.getElementById(isKotoba ? 'paste-kotoba-table' : 'paste-kanji-table');
+            const raw = textarea.value.trim();
+            if (!raw) {
+                alert('Tempel tabel yang ingin ditambahkan terlebih dahulu.');
+                return;
+            }
+
+            const lines = raw.split(/\r?\n/).filter(line => line.trim());
+            const delimiter = lines[0].includes('\t') ? '\t' : (lines[0].includes(';') ? ';' : ',');
+            const rows = lines.map(line => line.split(delimiter).map(cell => cell.trim().replace(/^\"|\"$/g, '')));
+            const normalize = value => value.toLowerCase().replace(/[ _-]/g, '');
+            const headerAliases = isKotoba
+                ? [['kana'], ['romaji'], ['artiid', 'artiindonesia'], ['artien', 'artienglish'], ['level', 'jlpt'], ['kategori', 'category']]
+                : [['kanji'], ['kana'], ['romaji'], ['artiid', 'artiindonesia'], ['artien', 'artienglish'], ['level', 'jlpt']];
+            const firstRow = rows[0].map(normalize);
+            const hasHeader = headerAliases.slice(0, isKotoba ? 4 : 4).every((aliases, index) => aliases.includes(firstRow[index]));
+            if (hasHeader) rows.shift();
+
+            let added = 0;
+            let skipped = 0;
+            const allowedLevels = ['N5', 'N4', 'N3', 'N2', 'N1'];
+            rows.forEach((row, index) => {
+                const value = position => (row[position] || '').trim();
+                if (isKotoba) {
+                    const [kana, romaji, arti_id, arti_en, levelRaw, kategoriRaw, bab] = [0, 1, 2, 3, 4, 5, 6].map(value);
+                    if (!kana || !romaji || !arti_id) { skipped++; return; }
+                    const level = (levelRaw || currentLevel).toUpperCase();
+                    if (!allowedLevels.includes(level)) { skipped++; return; }
+                    const kategori = kategoriRaw || dbCategories[0] || 'Umum';
+                    if (!dbCategories.includes(kategori)) dbCategories.push(kategori);
+                    dbKotoba.push({ id: `paste_k_${Date.now()}_${index}_${added}`, kana, romaji, arti_id, arti_en, level, kategori, bab });
+                } else {
+                    const [kanji, kana, romaji, arti_id, arti_en, levelRaw] = [0, 1, 2, 3, 4, 5].map(value);
+                    if (!kanji || !kana || !arti_id) { skipped++; return; }
+                    const level = (levelRaw || currentLevel).toUpperCase();
+                    if (!allowedLevels.includes(level)) { skipped++; return; }
+                    dbKanji.push({ id: `paste_j_${Date.now()}_${index}_${added}`, kanji, kana, romaji, arti_id, arti_en, level });
+                }
+                added++;
+            });
+
+            if (!added) {
+                alert('Tidak ada baris valid. Periksa urutan kolom dan pastikan kolom wajib terisi.');
+                return;
+            }
+            saveDatabase();
+            populateCategoryDropdowns();
+            renderAllViews();
+            renderAdminTables();
+            textarea.value = '';
+            alert(`${added} data ${isKotoba ? 'Kotoba' : 'Kanji'} ditambahkan${skipped ? `; ${skipped} baris dilewati karena datanya tidak lengkap atau level tidak valid` : ''}.`);
+        }
+
+        /* EXCEL IMPORT HANDLER */
+        function getImportCell(row, columnName) {
+            const normalize = value => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const aliases = {
+                arti_id: ['arti_id', 'arti indonesia'],
+                arti_en: ['arti_en', 'arti english'],
+                kategori: ['kategori', 'category'],
+                level: ['level', 'jlpt'],
+                bab: ['bab', 'chapter']
+            };
+            const acceptedHeaders = (aliases[columnName] || [columnName]).map(normalize);
+            const key = Object.keys(row).find(header => {
+                const normalizedHeader = normalize(header);
+                return acceptedHeaders.includes(normalizedHeader) ||
+                    (columnName === 'bab' && (normalizedHeader.includes('bab') || normalizedHeader.includes('chapter')));
+            });
+            return key ? row[key] : '';
+        }
+
+        function processExcelUpload(type) {
+            const inputId = type === 'kotoba' ? 'excel-kotoba-file' : 'excel-kanji-file';
+            const fileInput = document.getElementById(inputId);
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Pilih file Excel / CSV terlebih dahulu!");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.SheetNames[0];
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+                    if (!jsonData || jsonData.length === 0) {
+                        alert("File Excel kosong!");
+                        return;
+                    }
+
+                    let count = 0;
+                    if (type === 'kotoba') {
+                        jsonData.forEach((row, idx) => {
+                            const kana = getImportCell(row, 'kana');
+                            const romaji = getImportCell(row, 'romaji');
+                            const artiId = getImportCell(row, 'arti_id');
+                            if (kana && romaji && artiId) {
+                                const level = String(getImportCell(row, 'level') || currentLevel).toUpperCase();
+                                const importedItem = {
+                                    id: 'ex_k_' + Date.now() + '_' + idx,
+                                    kana: String(kana),
+                                    romaji: String(romaji),
+                                    arti_id: String(artiId),
+                                    arti_en: String(getImportCell(row, 'arti_en') || ''),
+                                    level,
+                                    kategori: String(getImportCell(row, 'kategori') || dbCategories[0]),
+                                    bab: String(getImportCell(row, 'bab') || '')
+                                };
+                                const existingIndex = dbKotoba.findIndex(item =>
+                                    String(item.kana).trim() === importedItem.kana.trim() &&
+                                    String(item.level).toUpperCase() === level &&
+                                    String(item.arti_id).trim().toLowerCase() === importedItem.arti_id.trim().toLowerCase()
+                                );
+                                if (existingIndex >= 0) importedItem.id = dbKotoba[existingIndex].id;
+                                dbKotoba[existingIndex >= 0 ? existingIndex : dbKotoba.length] = importedItem;
+                                count++;
+                            }
+                        });
+                        alert(`${count} data Kotoba berhasil diimpor atau diperbarui. Data yang cocok diperbarui agar tidak menjadi dobel.`);
+                    } else {
+                        jsonData.forEach((row, idx) => {
+                            if (row.kanji && row.kana && row.arti_id) {
+                                dbKanji.push({
+                                    id: 'ex_j_' + Date.now() + '_' + idx,
+                                    kanji: String(row.kanji),
+                                    kana: String(row.kana),
+                                    romaji: String(row.romaji || ''),
+                                    arti_id: String(row.arti_id),
+                                    arti_en: String(row.arti_en || ''),
+                                    level: String(row.level || currentLevel).toUpperCase()
+                                });
+                                count++;
+                            }
+                        });
+                        alert(`Berhasil mengimpor ${count} data Kanji Kotoba!`);
+                    }
+
+                    saveDatabase();
+                    populateCategoryDropdowns();
+                    renderAllViews();
+                    renderAdminTables();
+                    fileInput.value = '';
+
+                } catch (err) {
+                    alert("Gagal memproses file. Pastikan format kolom Excel sesuai!");
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+
+        /* MANUAL KOTOBA CRUD */
+        function saveKotobaManual(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-kotoba-id').value;
+            const newItem = {
+                id: id || 'k_' + Date.now(),
+                kana: document.getElementById('form-kotoba-kana').value.trim(),
+                romaji: document.getElementById('form-kotoba-romaji').value.trim(),
+                level: document.getElementById('form-kotoba-level').value,
+                kategori: document.getElementById('form-kotoba-kategori').value,
+                bab: document.getElementById('form-kotoba-bab').value.trim(),
+                arti_id: document.getElementById('form-kotoba-arti-id').value.trim(),
+                arti_en: document.getElementById('form-kotoba-arti-en').value.trim()
+            };
+
+            if (id) {
+                const idx = dbKotoba.findIndex(k => k.id === id);
+                if (idx !== -1) dbKotoba[idx] = newItem;
+            } else {
+                dbKotoba.push(newItem);
+            }
+
+            saveDatabase();
+            resetKotobaForm();
+            populateCategoryDropdowns();
+            renderAllViews();
+            renderAdminTables();
+            alert("Data Kotoba berhasil disimpan!");
+        }
+
+        function editKotobaItem(id) {
+            const item = dbKotoba.find(k => k.id === id);
+            if (!item) return;
+
+            document.getElementById('form-kotoba-id').value = item.id;
+            document.getElementById('form-kotoba-kana').value = item.kana;
+            document.getElementById('form-kotoba-romaji').value = item.romaji;
+            document.getElementById('form-kotoba-level').value = item.level;
+            document.getElementById('form-kotoba-kategori').value = item.kategori;
+            document.getElementById('form-kotoba-bab').value = item.bab || '';
+            document.getElementById('form-kotoba-arti-id').value = item.arti_id;
+            document.getElementById('form-kotoba-arti-en').value = item.arti_en;
+        }
+
+        function deleteKotobaItem(id) {
+            if (confirm("Hapus data Kotoba ini?")) {
+                dbKotoba = dbKotoba.filter(k => k.id !== id);
+                saveDatabase();
+                populateCategoryDropdowns();
+                renderAllViews();
+                renderAdminTables();
+            }
+        }
+
+        function resetKotobaForm() {
+            document.getElementById('form-kotoba-id').value = '';
+            document.getElementById('form-kotoba-kana').value = '';
+            document.getElementById('form-kotoba-romaji').value = '';
+            document.getElementById('form-kotoba-arti-id').value = '';
+            document.getElementById('form-kotoba-arti-en').value = '';
+            document.getElementById('form-kotoba-bab').value = '';
+        }
+
+
+        /* MANUAL KANJI CRUD */
+        function saveKanjiManual(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-kanji-id').value;
+            const newItem = {
+                id: id || 'j_' + Date.now(),
+                kanji: document.getElementById('form-kanji-kanji').value.trim(),
+                kana: document.getElementById('form-kanji-kana').value.trim(),
+                romaji: document.getElementById('form-kanji-romaji').value.trim(),
+                level: document.getElementById('form-kanji-level').value,
+                arti_id: document.getElementById('form-kanji-arti-id').value.trim(),
+                arti_en: document.getElementById('form-kanji-arti-en').value.trim()
+            };
+
+            if (id) {
+                const idx = dbKanji.findIndex(j => j.id === id);
+                if (idx !== -1) dbKanji[idx] = newItem;
+            } else {
+                dbKanji.push(newItem);
+            }
+
+            saveDatabase();
+            resetKanjiForm();
+            renderAllViews();
+            renderAdminTables();
+            alert("Data Kanji Kotoba berhasil disimpan!");
+        }
+
+        function editKanjiItem(id) {
+            const item = dbKanji.find(j => j.id === id);
+            if (!item) return;
+
+            document.getElementById('form-kanji-id').value = item.id;
+            document.getElementById('form-kanji-kanji').value = item.kanji;
+            document.getElementById('form-kanji-kana').value = item.kana;
+            document.getElementById('form-kanji-romaji').value = item.romaji;
+            document.getElementById('form-kanji-level').value = item.level;
+            document.getElementById('form-kanji-arti-id').value = item.arti_id;
+            document.getElementById('form-kanji-arti-en').value = item.arti_en;
+        }
+
+        function deleteKanjiItem(id) {
+            if (confirm("Hapus data Kanji ini?")) {
+                dbKanji = dbKanji.filter(j => j.id !== id);
+                saveDatabase();
+                renderAllViews();
+                renderAdminTables();
+            }
+        }
+
+        function resetKanjiForm() {
+            document.getElementById('form-kanji-id').value = '';
+            document.getElementById('form-kanji-kanji').value = '';
+            document.getElementById('form-kanji-kana').value = '';
+            document.getElementById('form-kanji-romaji').value = '';
+            document.getElementById('form-kanji-arti-id').value = '';
+            document.getElementById('form-kanji-arti-en').value = '';
+        }
+
+
+        /* CATEGORY MANAGEMENT */
+        function addCategory(e) {
+            e.preventDefault();
+            const val = document.getElementById('form-category-input').value.trim();
+            if (val && !dbCategories.includes(val)) {
+                dbCategories.push(val);
+                saveDatabase();
+                populateCategoryDropdowns();
+                renderAdminTables();
+                document.getElementById('form-category-input').value = '';
+            }
+        }
+
+        function deleteCategory(cat) {
+            if (confirm(`Hapus kategori "${cat}"?`)) {
+                dbCategories = dbCategories.filter(c => c !== cat);
+                saveDatabase();
+                populateCategoryDropdowns();
+                renderAdminTables();
+            }
+        }
+
+
+        /* ADMIN SETTINGS */
+        function changeAdminPin(e) {
+            e.preventDefault();
+            const oldPin = document.getElementById('pin-old').value;
+            const newPin = document.getElementById('pin-new').value;
+
+            if (oldPin === adminPin) {
+                adminPin = newPin;
+                saveDatabase();
+                alert("PIN Admin berhasil diperbarui!");
+                document.getElementById('pin-old').value = '';
+                document.getElementById('pin-new').value = '';
+            } else {
+                alert("PIN Lama salah!");
+            }
+        }
+
+        function resetDataToDefault() {
+            if (confirm("Apakah Anda yakin ingin mengembalikan seluruh data ke default awal? Semua data hasil edit/upload Anda akan terhapus!")) {
+                localStorage.clear();
+                loadDatabase();
+                initUI();
+                renderAdminTables();
+                alert("Data berhasil di-reset ke data awal!");
+            }
+        }
+    </script>
+</body>
+</html>
