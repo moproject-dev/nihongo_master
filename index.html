@@ -427,6 +427,46 @@
                 min-width: 34rem;
             }
 
+            #kotoba-view-container .overflow-x-auto,
+            #kanji-view-container .overflow-x-auto {
+                max-width: 100%;
+                overflow-x: auto;
+                overflow-y: visible;
+            }
+
+            #kotoba-view-container table,
+            #kanji-view-container table {
+                table-layout: auto;
+                width: max-content;
+            }
+
+            #kotoba-view-container table th,
+            #kotoba-view-container table td,
+            #kanji-view-container table th,
+            #kanji-view-container table td {
+                max-width: 13rem;
+                padding: 0.65rem !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                vertical-align: top;
+            }
+
+            #kotoba-view-container table td span,
+            #kanji-view-container table td span {
+                white-space: normal !important;
+                overflow-wrap: anywhere;
+            }
+
+            #kotoba-view-container table th:last-child,
+            #kotoba-view-container table td:last-child,
+            #kanji-view-container table th:last-child,
+            #kanji-view-container table td:last-child {
+                width: 3.5rem;
+                min-width: 3.5rem;
+                white-space: nowrap !important;
+            }
+
             #kotoba-view-container .max-w-md,
             #kanji-view-container .max-w-md {
                 padding: 1.25rem;
