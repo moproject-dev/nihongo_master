@@ -180,6 +180,14 @@
                 font-size: 14px;
             }
 
+            header {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+            }
+
             header .max-w-7xl > .flex {
                 height: auto;
                 flex-wrap: wrap;
@@ -223,22 +231,40 @@
             main {
                 padding-left: 0.75rem !important;
                 padding-right: 0.75rem !important;
-                padding-top: 1rem !important;
+                padding-top: calc(1rem + 7.2rem) !important;
                 padding-bottom: 1.5rem !important;
                 row-gap: 2rem !important;
             }
 
             #app-layout {
                 display: block;
+                padding-top: 5.5rem;
+            }
+
+            #content-sections,
+            section,
+            section > .bg-white,
+            .book-sidebar,
+            .book-sidebar nav {
+                min-width: 0;
+                max-width: 100%;
             }
 
             .book-sidebar {
-                position: relative;
-                top: auto;
-                width: 100%;
-                margin-bottom: 1rem;
-                padding: 0.75rem;
-                border-left-width: 4px;
+                position: fixed !important;
+                top: 7.2rem !important;
+                left: 0.75rem;
+                right: 0.75rem;
+                z-index: 30 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                width: auto !important;
+                margin: 0;
+                padding: 0.35rem;
+                border-left: 0;
+                border-top: 4px solid #bc002d;
+                border-radius: 0.9rem;
+                box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
             }
 
             .book-sidebar::after {
@@ -246,28 +272,33 @@
             }
 
             .book-sidebar > div:first-child {
-                display: flex;
-                align-items: baseline;
-                gap: 0.5rem;
-                padding: 0 0.25rem 0.5rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .book-sidebar > div:first-child p:last-child {
-                margin-left: auto;
+                display: none;
             }
 
             .book-sidebar nav {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 0.5rem;
+                display: flex;
+                align-items: stretch;
+                gap: 0.35rem;
+                overflow: hidden;
             }
 
             .book-nav-btn {
+                flex: 1 1 0;
+                min-width: 0;
+                min-height: 2.6rem;
+                overflow: hidden;
                 justify-content: center;
                 border-left: 0;
                 border-bottom: 3px solid transparent;
                 text-align: center;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                font-size: 0.72rem;
+            }
+
+            .book-nav-btn span {
+                min-width: 0;
+                overflow-wrap: anywhere;
             }
 
             .book-nav-btn.active {
@@ -345,6 +376,22 @@
             section input,
             section select {
                 min-height: 2.5rem;
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            section h2,
+            section h3,
+            section p,
+            section span,
+            section label {
+                overflow-wrap: anywhere;
+            }
+
+            section .grid > div,
+            #kotoba-view-container,
+            #kanji-view-container {
+                min-width: 0;
             }
 
             #empty-level-banner {
